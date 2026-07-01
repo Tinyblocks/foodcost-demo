@@ -10,12 +10,13 @@ import {
   FC_GREEN,
   FC_RED,
   SEASONING_RATE,
+  TVA_VENTE,
 } from "../data/seed";
 import { Badge, Button, Card, CardHeader, cn, eur, pct } from "../components/ui";
 import { AlertTriangle, CheckCircle2, Clock, Pencil, Trash2, Plus } from "lucide-react";
 
 interface Draft {
-  sellingPriceHT: number;
+  priceTTC: number;
   portions: number;
   lines: RecipeLine[];
 }
@@ -29,7 +30,7 @@ export default function Recipes({ scenario }: { scenario: Scenario }) {
 
   function effective(r: Recipe): Recipe {
     const d = drafts[r.id];
-    return d ? { ...r, sellingPriceHT: d.sellingPriceHT, portions: d.portions, lines: d.lines } : r;
+    return d ? { ...r, priceTTC: d.priceTTC, portions: d.portions, lines: d.lines } : r;
   }
 
   const costs = recipes.map((r) => costRecipe(effective(r), scenario));
@@ -41,7 +42,7 @@ export default function Recipes({ scenario }: { scenario: Scenario }) {
     setDrafts((d) => ({
       ...d,
       [selected]: d[selected] ?? {
-        sellingPriceHT: recipe.sellingPriceHT,
+        priceTTC: recipe.priceTTC,
         portions: recipe.portions,
         lines: recipe.lines.map((l) => ({ ...l })),
       },
@@ -102,7 +103,7 @@ export default function Recipes({ scenario }: { scenario: Scenario }) {
                     {drafts[c.recipe.id] && <Badge tone="blue">modifiée</Badge>}
                   </p>
                   <p className="text-xs text-zinc-500">
-                    {eur(c.recipe.sellingPriceHT)} € HT · coût {eur(c.costPerPortion)} €
+                    {eur(c.recipe.priceTTC)} € TTC · coût {eur(c.costPerPortion)} €
                   </p>
                 </div>
               </div>
@@ -145,20 +146,23 @@ export default function Recipes({ scenario }: { scenario: Scenario }) {
         <div className="p-5">
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-zinc-200 px-4 py-2.5">
-              <p className="text-xs text-zinc-500">Prix de vente HT</p>
+              <p className="text-xs text-zinc-500">Prix de vente TTC</p>
               {editing ? (
                 <input
                   type="number"
                   step="0.1"
-                  value={drafts[selected].sellingPriceHT}
-                  onChange={(e) => patch({ sellingPriceHT: parseFloat(e.target.value) || 0 })}
+                  value={drafts[selected].priceTTC}
+                  onChange={(e) => patch({ priceTTC: parseFloat(e.target.value) || 0 })}
                   className="mt-0.5 w-full rounded border border-zinc-300 px-2 py-1 text-sm tabular-nums focus:border-emerald-500 focus:outline-none"
                 />
               ) : (
                 <p className="mt-0.5 text-lg font-semibold text-zinc-900">
-                  {eur(recipe.sellingPriceHT)} €
+                  {eur(recipe.priceTTC)} €
                 </p>
               )}
+              <p className="mt-1 text-xs text-zinc-400">
+                dont HT : {eur(cost.priceHT)} € · TVA {TVA_VENTE * 100} %
+              </p>
             </div>
             <div className="rounded-lg border border-zinc-200 px-4 py-2.5">
               <p className="text-xs text-zinc-500">Portions</p>
@@ -302,7 +306,9 @@ export default function Recipes({ scenario }: { scenario: Scenario }) {
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
                 Au-dessus de 30 % de coût matière. Prix de vente à{" "}
-                <span className="font-medium">{eur(cost.costPerPortion / FC_RED)} € HT</span>{" "}
+                <span className="font-medium">
+                  {eur((cost.costPerPortion / FC_RED) * (1 + TVA_VENTE))} € TTC
+                </span>{" "}
                 pour repasser sous le seuil.
               </span>
             </div>

@@ -51,7 +51,7 @@ const CAT_STYLE: Record<
 const ORDER: MenuCategory[] = ["Étoile", "Vache à lait", "Énigme", "Poids mort"];
 
 function contribution(it: MenuItem) {
-  return (it.recipe.sellingPriceHT - it.costPerPortion) * it.recipe.monthlySales;
+  return (it.priceHT - it.costPerPortion) * it.recipe.monthlySales;
 }
 
 export default function MenuEngineering({ scenario }: { scenario: Scenario }) {

@@ -2,8 +2,8 @@ import {
   Scenario,
   allCosts,
   avgFoodCost,
+  weightedMargin,
   getIngredients,
-  staleIngredients,
   trendPct,
   foodCostTone,
   FC_RED,
@@ -21,9 +21,9 @@ import {
 export default function Dashboard({ scenario }: { scenario: Scenario }) {
   const costs = allCosts(scenario);
   const avg = avgFoodCost(scenario);
+  const marge = weightedMargin(scenario);
   const overThirty = costs.filter((c) => c.ratio > FC_RED);
   const ingredients = getIngredients(scenario);
-  const stale = staleIngredients(scenario);
   const butterRise = scenario === "juin";
 
   const movers = [...ingredients]
@@ -52,18 +52,18 @@ export default function Dashboard({ scenario }: { scenario: Scenario }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Stat
+          label="Marge brute pondérée"
+          value={pct(marge, 0)}
+          hint="Pondérée par les ventes · standard ≈ 70 %"
+          tone="emerald"
+          icon={<Percent className="h-4 w-4" />}
+        />
+        <Stat
           label="Coût matière moyen"
           value={pct(avg * 100, 0)}
           hint="Moyenne non pondérée · cible < 30 %"
           tone={foodCostTone(avg)}
           icon={<Gauge className="h-4 w-4" />}
-        />
-        <Stat
-          label="Marge brute"
-          value={pct((1 - avg) * 100, 0)}
-          hint="Standard marché ≈ 70 %"
-          tone="emerald"
-          icon={<Percent className="h-4 w-4" />}
         />
       </div>
 

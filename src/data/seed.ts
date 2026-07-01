@@ -36,7 +36,7 @@ export interface Recipe {
   id: string;
   name: string;
   emoji: string;
-  sellingPriceHT: number;
+  priceTTC: number;
   portions: number;
   monthlySales: number;
   lines: RecipeLine[];
@@ -56,6 +56,10 @@ export const SEASONING_RATE = 0.03;
 export const TARGET_RATIO = 0.3; // coût matière cible
 export const MARGIN_TARGET = 70; // marge cible en % (gardée pour le menu engineering)
 export const STALE_DAYS = 60;
+
+// Les prix de vente saisis sont en TTC (prix carte). Le HT s'en déduit avec la
+// TVA restauration (10 %) et coût matière / marge se calculent sur le HT.
+export const TVA_VENTE = 0.1;
 
 // Code couleur coût matière : vert < 25 %, orange 25–30 %, rouge > 30 %.
 export const FC_GREEN = 0.25;
@@ -304,15 +308,15 @@ export function staleIngredients(scenario: Scenario): Ingredient[] {
 // --- Recipes -------------------------------------------------------------
 
 export const recipes: Recipe[] = [
-  { id: "allonge", name: "Allongé", emoji: "☕", sellingPriceHT: 2.2, portions: 1, monthlySales: 354, lines: [{ ingredientId: "cafe-grains", qty: 0.008 }] },
-  { id: "cappuccino", name: "Cappuccino", emoji: "☕", sellingPriceHT: 3.0, portions: 1, monthlySales: 210, lines: [{ ingredientId: "cafe-grains", qty: 0.008 }, { ingredientId: "lait", qty: 0.15 }] },
-  { id: "sandwich-cheddar", name: "Sandwich Cheddar", emoji: "🥪", sellingPriceHT: 7.0, portions: 1, monthlySales: 180, lines: [{ ingredientId: "pain", qty: 2 }, { ingredientId: "cheddar", qty: 0.06 }, { ingredientId: "beurre", qty: 0.02 }, { ingredientId: "cream-cheese", qty: 0.04 }, { ingredientId: "pickles-jalapeno", qty: 0.03 }] },
-  { id: "salade-quinoa", name: "Salade Quinoa Feta", emoji: "🥗", sellingPriceHT: 9.5, portions: 1, monthlySales: 95, lines: [{ ingredientId: "quinoa", qty: 0.08 }, { ingredientId: "feta", qty: 0.07 }, { ingredientId: "huile-olive", qty: 0.02 }, { ingredientId: "legumes-mix", qty: 0.1 }] },
-  { id: "bowl-coco", name: "Bowl Coco", emoji: "🍲", sellingPriceHT: 11.0, portions: 1, monthlySales: 60, lines: [{ ingredientId: "lait-coco", qty: 0.15 }, { ingredientId: "riz", qty: 0.1 }, { ingredientId: "legumes-mix", qty: 0.15 }] },
-  { id: "cookie", name: "Cookie maison", emoji: "🍪", sellingPriceHT: 2.8, portions: 10, monthlySales: 140, lines: [{ ingredientId: "beurre", qty: 0.5 }, { ingredientId: "chocolat", qty: 0.3 }, { ingredientId: "sucre", qty: 0.2 }, { ingredientId: "farine", qty: 0.3 }] },
-  { id: "menu-dej", name: "Menu déjeuner", emoji: "🍱", sellingPriceHT: 12.0, portions: 1, monthlySales: 120, lines: [{ ingredientId: "pain", qty: 2 }, { ingredientId: "cheddar", qty: 0.06 }, { ingredientId: "beurre", qty: 0.02 }, { ingredientId: "cream-cheese", qty: 0.04 }, { ingredientId: "pickles-jalapeno", qty: 0.03 }, { ingredientId: "canette-soda", qty: 1 }] },
-  { id: "canette", name: "Soda canette", emoji: "🥤", sellingPriceHT: 2.5, portions: 1, monthlySales: 70, lines: [{ ingredientId: "canette-soda", qty: 1 }] },
-  { id: "jus-bio", name: "Jus bio", emoji: "🧃", sellingPriceHT: 3.0, portions: 1, monthlySales: 40, lines: [{ ingredientId: "jus-bio", qty: 1 }] },
+  { id: "allonge", name: "Allongé", emoji: "☕", priceTTC: 2.2, portions: 1, monthlySales: 354, lines: [{ ingredientId: "cafe-grains", qty: 0.008 }] },
+  { id: "cappuccino", name: "Cappuccino", emoji: "☕", priceTTC: 3.0, portions: 1, monthlySales: 210, lines: [{ ingredientId: "cafe-grains", qty: 0.008 }, { ingredientId: "lait", qty: 0.15 }] },
+  { id: "sandwich-cheddar", name: "Sandwich Cheddar", emoji: "🥪", priceTTC: 7.0, portions: 1, monthlySales: 180, lines: [{ ingredientId: "pain", qty: 2 }, { ingredientId: "cheddar", qty: 0.06 }, { ingredientId: "beurre", qty: 0.02 }, { ingredientId: "cream-cheese", qty: 0.04 }, { ingredientId: "pickles-jalapeno", qty: 0.03 }] },
+  { id: "salade-quinoa", name: "Salade Quinoa Feta", emoji: "🥗", priceTTC: 9.5, portions: 1, monthlySales: 95, lines: [{ ingredientId: "quinoa", qty: 0.08 }, { ingredientId: "feta", qty: 0.07 }, { ingredientId: "huile-olive", qty: 0.02 }, { ingredientId: "legumes-mix", qty: 0.1 }] },
+  { id: "bowl-coco", name: "Bowl Coco", emoji: "🍲", priceTTC: 11.0, portions: 1, monthlySales: 60, lines: [{ ingredientId: "lait-coco", qty: 0.15 }, { ingredientId: "riz", qty: 0.1 }, { ingredientId: "legumes-mix", qty: 0.15 }] },
+  { id: "cookie", name: "Cookie maison", emoji: "🍪", priceTTC: 2.8, portions: 10, monthlySales: 140, lines: [{ ingredientId: "beurre", qty: 0.5 }, { ingredientId: "chocolat", qty: 0.3 }, { ingredientId: "sucre", qty: 0.2 }, { ingredientId: "farine", qty: 0.3 }] },
+  { id: "menu-dej", name: "Menu déjeuner", emoji: "🍱", priceTTC: 12.0, portions: 1, monthlySales: 120, lines: [{ ingredientId: "pain", qty: 2 }, { ingredientId: "cheddar", qty: 0.06 }, { ingredientId: "beurre", qty: 0.02 }, { ingredientId: "cream-cheese", qty: 0.04 }, { ingredientId: "pickles-jalapeno", qty: 0.03 }, { ingredientId: "canette-soda", qty: 1 }] },
+  { id: "canette", name: "Soda canette", emoji: "🥤", priceTTC: 2.5, portions: 1, monthlySales: 70, lines: [{ ingredientId: "canette-soda", qty: 1 }] },
+  { id: "jus-bio", name: "Jus bio", emoji: "🧃", priceTTC: 3.0, portions: 1, monthlySales: 40, lines: [{ ingredientId: "jus-bio", qty: 1 }] },
 ];
 
 // --- Costing -------------------------------------------------------------
@@ -325,6 +329,7 @@ export interface RecipeCost {
   ratio: number;
   margePct: number;
   belowMargin: boolean; // marge < cible 70%
+  priceHT: number; // prix de vente HT (déduit du TTC)
   lines: { ingredientId: string; qty: number; unitPrice: number; cost: number }[];
 }
 
@@ -336,7 +341,8 @@ export function costRecipe(recipe: Recipe, scenario: Scenario): RecipeCost {
   const rawCost = lines.reduce((s, l) => s + l.cost, 0);
   const totalCost = rawCost * (1 + SEASONING_RATE);
   const costPerPortion = totalCost / recipe.portions;
-  const ratio = costPerPortion / recipe.sellingPriceHT;
+  const priceHT = recipe.priceTTC / (1 + TVA_VENTE);
+  const ratio = costPerPortion / priceHT;
   const margePct = (1 - ratio) * 100;
   return {
     recipe,
@@ -346,6 +352,7 @@ export function costRecipe(recipe: Recipe, scenario: Scenario): RecipeCost {
     ratio,
     margePct,
     belowMargin: margePct < MARGIN_TARGET,
+    priceHT,
     lines,
   };
 }
@@ -365,12 +372,20 @@ export function totalMonthlySales(): number {
   return recipes.reduce((s, r) => s + r.monthlySales, 0);
 }
 
+// Inflation moyenne des prix d'achat depuis janvier (moyenne des variations
+// par ingrédient acheté).
+export function avgInflation(scenario: Scenario): number {
+  const ings = getIngredients(scenario).filter((i) => !i.houseMade && i.history);
+  if (!ings.length) return 0;
+  return ings.reduce((s, i) => s + trendPct(i.history), 0) / ings.length;
+}
+
 export function weightedMargin(scenario: Scenario): number {
   const costs = allCosts(scenario);
   let revenue = 0;
   let matiere = 0;
   for (const c of costs) {
-    revenue += c.recipe.sellingPriceHT * c.recipe.monthlySales;
+    revenue += c.priceHT * c.recipe.monthlySales;
     matiere += c.costPerPortion * c.recipe.monthlySales;
   }
   return revenue ? (1 - matiere / revenue) * 100 : 0;

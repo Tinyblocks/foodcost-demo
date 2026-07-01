@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Scenario, getIngredients, Ingredient, trendPct } from "../data/seed";
+import {
+  Scenario,
+  getIngredients,
+  Ingredient,
+  trendPct,
+  avgInflation,
+} from "../data/seed";
 import { Badge, Card, CardHeader, cn, eur } from "../components/ui";
 import { Home, TrendingUp, TrendingDown, Clock } from "lucide-react";
 import {
@@ -42,9 +48,43 @@ export default function Mercuriale({ scenario }: { scenario: Scenario }) {
   const lo = Math.floor(Math.min(...prices) * 0.9 * 10) / 10;
   const hi = Math.ceil(Math.max(...prices) * 1.1 * 10) / 10;
   const rising = trendPct(ing.history) > 0.5;
+  const inflation = avgInflation(scenario);
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+    <div className="space-y-5">
+      <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white px-5 py-4 shadow-sm">
+        <div
+          className={cn(
+            "flex h-11 w-11 items-center justify-center rounded-lg",
+            inflation > 0 ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
+          )}
+        >
+          {inflation > 0 ? (
+            <TrendingUp className="h-5 w-5" />
+          ) : (
+            <TrendingDown className="h-5 w-5" />
+          )}
+        </div>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+            Inflation moyenne de vos achats · depuis janvier
+          </p>
+          <p
+            className={cn(
+              "text-2xl font-semibold",
+              inflation > 0 ? "text-red-600" : "text-emerald-600"
+            )}
+          >
+            {inflation > 0 ? "+" : ""}
+            {inflation.toFixed(1)} %
+          </p>
+        </div>
+        <p className="ml-auto max-w-xs text-xs text-zinc-500">
+          Variation moyenne des prix de tous vos ingrédients suivis.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
       <Card className="lg:col-span-3">
         <CardHeader
           title="Mercuriale"
@@ -183,6 +223,7 @@ export default function Mercuriale({ scenario }: { scenario: Scenario }) {
           )}
         </div>
       </Card>
+      </div>
     </div>
   );
 }
